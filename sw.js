@@ -1,11 +1,12 @@
 // Service Worker: アプリ本体をオフライン対応し、国土地理院タイルを端末にキャッシュする
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.3.0';
 const APP_CACHE = 'b787-app-' + VERSION;
 const TILE_CACHE = 'b787-tiles-v1';
 const TILE_LIMIT = 4000;   // 端末に保持する地形・写真タイルの上限枚数
 
 const APP_SHELL = [
-  './', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
+  './', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-192.png',
+  './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png',
   './css/style.css', './js/audio/sound.js', './js/data/airports.js', './js/data/navaids.js', './js/main.js',
   './js/render/aircraft.js', './js/render/airports.js', './js/render/shared.js', './js/render/terrain.js', './js/render/world.js',
   './js/sim/aircraft-787.js', './js/sim/atmosphere.js', './js/sim/autoflight.js', './js/sim/copilot.js', './js/sim/elevation.js',
