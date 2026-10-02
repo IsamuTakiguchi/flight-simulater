@@ -19,6 +19,14 @@ npx http-server -p 8000
 ブラウザで <http://localhost:8000/> を開き、メニューで出発・到着空港を選んで「フライト開始」を押します。
 GitHub Pages など任意の静的ホスティングにそのまま置いても動作します。
 
+## GitHub Pages で公開（GitHub Actions）
+
+`.github/workflows/pages.yml` が、push のたびにテスト（ILS 自動着陸・全行程飛行）を実行し、成功すると GitHub Pages に公開します。
+
+1. リポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にする（初回のみ）
+2. `main` に push（またはマージ）すると自動公開。**Actions** タブから手動実行（Run workflow）も可能
+3. 公開 URL: `https://<ユーザー名>.github.io/flight-simulater/`
+
 ## Railway へのデプロイ（Web アプリとして公開）
 
 このリポジトリは [Railway](https://railway.com/) にそのままデプロイできます（`package.json` / `server.js` / `railway.json` 同梱、依存パッケージなし）。

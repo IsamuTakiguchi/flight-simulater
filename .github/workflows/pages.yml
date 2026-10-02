@@ -1,0 +1,55 @@
+# GitHub Pages への自動公開
+#   main（または作業ブランチ）へ push すると、テスト → 公開 の順に実行されます。
+#   初回のみ: リポジトリの Settings → Pages → Build and deployment → Source を「GitHub Actions」にしてください。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/b787-flight-simulator]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 構文チェック
+        run: for f in $(find js tests tools -name '*.js' -o -name '*.mjs') server.js sw.js; do node --check "$f" || exit 1; done
+      - name: 飛行テスト（ILS 自動着陸）
+        run: |
+          node tests/flare.mjs RJTT 34R 0/0 | tee flare.log
+          grep -q '"grade"' flare.log
+      - name: 飛行テスト（羽田→関西 全行程）
+        run: node tests/full-flight.mjs RJTT 34R RJBB 24L runway | tail -20
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 公開ファイルを集める
+        run: |
+          mkdir _site
+          cp -r index.html manifest.webmanifest sw.js css js vendor icons _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
