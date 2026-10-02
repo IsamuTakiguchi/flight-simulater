@@ -332,6 +332,17 @@ function loop(t) {
 }
 requestAnimationFrame(loop);
 
+// ---------- PWA（ホーム画面に追加・オフライン起動）----------
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  window.__installPrompt = e;
+  if (!$('menu').hidden) menu.render();
+});
+window.addEventListener('appinstalled', () => toast('アプリとしてインストールしました'));
+if ('serviceWorker' in navigator && location.protocol !== 'file:' && !/^(localhost|127\.)/.test(location.hostname) || 'serviceWorker' in navigator && new URLSearchParams(location.search).has('sw')) {
+  navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service Worker 登録失敗', err));
+}
+
 // デバッグ・自動テスト用
 window.__sim = () => sim;
 window.__world = () => world;

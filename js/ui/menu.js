@@ -111,6 +111,8 @@ export class Menu {
         </section>
       </div>
       <div class="m-actions">
+        <button class="btn" id="m-install" hidden>アプリとしてインストール</button>
+        <button class="btn" id="m-full">全画面</button>
         <button class="btn" id="m-help">操作ヘルプ</button>
         <button class="btn" id="m-demo">自動操縦デモで開始</button>
         <button class="btn primary" id="m-go">フライト開始</button>
@@ -146,6 +148,17 @@ export class Menu {
     $('m-go').onclick = () => this.start(false);
     $('m-demo').onclick = () => this.start(true);
     $('m-help').onclick = () => document.getElementById('help-win').hidden = false;
+    // PWA インストール（対応ブラウザのみ表示）
+    const inst = $('m-install');
+    if (window.__installPrompt) {
+      inst.hidden = false;
+      inst.onclick = async () => { const p = window.__installPrompt; window.__installPrompt = null; p.prompt(); await p.userChoice.catch(() => {}); inst.hidden = true; };
+    }
+    $('m-full').onclick = () => {
+      const d = document.documentElement;
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else if (d.requestFullscreen) d.requestFullscreen({ navigationUI: 'hide' }).then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})).catch(() => {});
+    };
   }
 
   save() { try { localStorage.setItem('b787sim.menu', JSON.stringify(this.s)); } catch (e) { /* 保存不可でも続行 */ } }

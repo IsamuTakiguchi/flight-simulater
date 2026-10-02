@@ -10,13 +10,46 @@
 ES モジュールを使うため、`file://` ではなく HTTP で開いてください。
 
 ```bash
-# どちらか
+# どれか
+npm start                   # 本番用サーバー（http://localhost:8080）
 python3 -m http.server 8000
 npx http-server -p 8000
 ```
 
 ブラウザで <http://localhost:8000/> を開き、メニューで出発・到着空港を選んで「フライト開始」を押します。
 GitHub Pages など任意の静的ホスティングにそのまま置いても動作します。
+
+## Railway へのデプロイ（Web アプリとして公開）
+
+このリポジトリは [Railway](https://railway.com/) にそのままデプロイできます（`package.json` / `server.js` / `railway.json` 同梱、依存パッケージなし）。
+
+1. Railway にログインし **New Project → Deploy from GitHub repo** でこのリポジトリを選択
+   （ブランチは `claude/b787-flight-simulator`、または main にマージ後の main）
+2. 自動でビルド・起動します（`node server.js`、ヘルスチェック `/healthz`）
+3. サービスの **Settings → Networking → Generate Domain** で公開 URL（`https://xxxx.up.railway.app`）を発行
+
+CLI の場合:
+
+```bash
+npm i -g @railway/cli
+railway login
+railway init          # 新規プロジェクト作成
+railway up            # このフォルダをデプロイ
+railway domain        # 公開 URL を発行
+```
+
+ローカルで本番と同じサーバーを試す場合は `npm start`（http://localhost:8080）。
+
+## アプリとしてインストール（PWA）
+
+HTTPS で公開した URL を開くと、ホーム画面・デスクトップにアプリとして追加できます。
+
+- **PC（Chrome / Edge）**: メニュー画面の「アプリとしてインストール」ボタン、またはアドレスバーのインストールアイコン
+- **Android（Chrome）**: 「アプリとしてインストール」ボタン、またはメニュー → ホーム画面に追加
+- **iPhone / iPad（Safari）**: 共有ボタン → ホーム画面に追加
+
+インストール後は全画面・横向きで起動し、アプリ本体はオフラインでも起動します。
+一度表示した地形・航空写真タイルは端末に最大 4,000 枚キャッシュされます（未取得の地域はオンラインが必要）。
 
 ## 再現している内容
 
@@ -61,6 +94,9 @@ LAND 3 で自動着陸します。手動の場合は 30〜50 ft でフレアし�
 
 ```
 index.html              画面レイアウト
+server.js               本番配信サーバー（Railway 用、依存なし）
+railway.json            Railway 設定
+manifest.webmanifest, sw.js, icons/   PWA（インストール・オフライン対応）
 css/style.css
 js/main.js              メインループ・UI 統合
 js/sim/                 シミュレーション本体（DOM 非依存。Node.js でも実行可能）

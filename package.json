@@ -1,0 +1,16 @@
+{
+  "name": "b787-flight-simulator-japan",
+  "version": "1.0.0",
+  "description": "Boeing 787-9 flight simulator for real Japanese airports (browser / PWA)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/flare.mjs RJTT 34R 0/0 && node tests/full-flight.mjs RJTT 34R RJBB 24L runway",
+    "build:data": "node tools/build-data.mjs"
+  },
+  "license": "MIT"
+}

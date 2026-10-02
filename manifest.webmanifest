@@ -1,0 +1,19 @@
+{
+  "name": "B787-9 Flight Simulator Japan",
+  "short_name": "B787 Sim",
+  "description": "ボーイング787-9で日本の実在空港を飛ぶフライトシミュレーター",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#05080d",
+  "theme_color": "#09131f",
+  "categories": ["games", "education", "simulation"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

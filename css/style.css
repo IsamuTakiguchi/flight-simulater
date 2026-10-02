@@ -213,3 +213,7 @@ button { font-family: inherit; }
   #overhead { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
   #master-lights { display: none; }
 }
+
+/* 天候入力の数値欄（単位表記が切れないよう幅を抑える） */
+.m-inline { min-width: 0; flex-wrap: wrap; }
+.m-inline input[type=number] { width: 62px !important; flex: 0 0 auto; padding: 0 6px; }
