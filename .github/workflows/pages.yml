@@ -1,11 +1,11 @@
 # GitHub Pages への自動公開
-#   main（または作業ブランチ）へ push すると、テスト → 公開 の順に実行されます。
+#   main へ push すると、テスト → 公開 の順に実行されます。
 #   初回のみ: リポジトリの Settings → Pages → Build and deployment → Source を「GitHub Actions」にしてください。
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/b787-flight-simulator]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
