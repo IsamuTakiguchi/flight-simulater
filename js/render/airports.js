@@ -68,7 +68,7 @@ const groundFrag = /* glsl */`
       col += base * spot * 2.4 * (1.0 - uDay);
     }
     float dist = length(vWorld - cameraPosition);
-    float fog = 1.0 - exp(-3.2 * dist / (uVis * (1.0 + uCamAlt / 2500.0)));
+    float fog = 1.0 - exp(-2.5 * dist / (uVis * (1.0 + uCamAlt / 2500.0)));
     col = mix(col, uFogColor, clamp(fog, 0.0, 1.0));
     gl_FragColor = vec4(col, tx.a * uOpacity);
     #include <colorspace_fragment>
@@ -114,7 +114,9 @@ const lightVert = /* glsl */`
     vA = a * fogT * mix(1.0, 0.45, uDay);
     vCol = c;
     float sz = lsize * 2600.0 / max(dist, 1.0);
-    gl_PointSize = clamp(sz, 1.6, 14.0) * uPx * (kind > 1.5 ? 1.4 : 1.0) * (kind > 0.5 && kind < 1.5 ? 1.6 : 1.0);
+    // 遠方でも点として視認できるよう最小サイズを確保し、輝度で距離感を出す
+    vA *= clamp(sz / 3.0, 0.35, 1.0);
+    gl_PointSize = clamp(sz, 3.0, 14.0) * uPx * (kind > 1.5 ? 1.4 : 1.0) * (kind > 0.5 && kind < 1.5 ? 1.6 : 1.0);
     gl_Position = projectionMatrix * viewMatrix * w;
     #include <logdepthbuf_vertex>
   }`;
@@ -125,8 +127,8 @@ const lightFrag = /* glsl */`
   void main() {
     #include <logdepthbuf_fragment>
     float d = length(gl_PointCoord - 0.5);
-    float core = smoothstep(0.5, 0.0, d);
-    float a = vA * core * core;
+    float core = 1.0 - smoothstep(0.12, 0.5, d);
+    float a = vA * core;
     if (a < 0.01) discard;
     gl_FragColor = vec4(vCol * a * 1.6, a);
     #include <colorspace_fragment>

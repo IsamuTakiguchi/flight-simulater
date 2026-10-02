@@ -141,7 +141,7 @@ export class World {
         uSunCol: { value: col3(1, 0.95, 0.85) }, uNight: { value: 0 }, uHorizonDip: { value: 0 }, uFogColor: worldUniforms.uFogColor, uOvercast: { value: 0 },
       },
     });
-    this.sky = new THREE.Mesh(new THREE.SphereGeometry(800000, 48, 24), this.skyMat);
+    this.sky = new THREE.Mesh(new THREE.SphereGeometry(150000, 48, 24), this.skyMat); // 深度を書かない背景なので半径は任意
     this.sky.renderOrder = -10; this.sky.frustumCulled = false;
     this.scene.add(this.sky);
 

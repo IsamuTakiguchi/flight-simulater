@@ -469,6 +469,8 @@ export class AutoFlight {
     if (!sim.onGround) {
       if ((this.rating === 'TO' || this.rating.startsWith('TO ')) && sim.agl > sim.fmc.thrRedAglFt * FT) this.rating = 'CLB';
       if (this.rating === 'GA' && this.vert.active !== 'TO/GA') this.rating = 'CLB';
+      if (sim.flightPhase === 'CRUISE' && this.rating.startsWith('CLB')) this.rating = 'CRZ';
+      if ((sim.flightPhase === 'CLIMB') && this.rating === 'CRZ') this.rating = 'CLB';
     }
     const maxLever = this.ratingLever(sim, this.rating === 'TO' || this.rating === 'GA' || this.rating.startsWith('TO') ? this.rating : (this.rating || 'CLB'));
     this.maxLever = maxLever;

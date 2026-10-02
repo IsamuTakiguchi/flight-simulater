@@ -239,6 +239,7 @@ $('btn-mc').onclick = () => sim.sys.resetMaster(sim);
   }, { passive: false });
 }
 new ResizeObserver(() => world && world.resize()).observe($('view'));
+if (window.matchMedia && matchMedia('(pointer: coarse)').matches) input.attachTouchYoke($('view'));
 
 // ---------- イベント処理 ----------
 function handleEvents() {

@@ -16,6 +16,27 @@ export class Input {
   }
   on(name, fn) { this.handlers[name] = fn; }
 
+  /** タッチ端末用の画面上の操縦桿 */
+  attachTouchYoke(parent) {
+    this.touch = { pitch: 0, roll: 0 };
+    const pad = document.createElement('div');
+    pad.id = 'yoke';
+    pad.innerHTML = '<div class="knob-dot"></div><span>YOKE</span>';
+    parent.appendChild(pad);
+    const dot = pad.querySelector('.knob-dot');
+    const set = (e) => {
+      const r = pad.getBoundingClientRect();
+      const x = clamp((e.clientX - r.left) / r.width * 2 - 1, -1, 1);
+      const y = clamp((e.clientY - r.top) / r.height * 2 - 1, -1, 1);
+      this.touch.roll = x; this.touch.pitch = y;
+      dot.style.left = (50 + x * 40) + '%'; dot.style.top = (50 + y * 40) + '%';
+    };
+    pad.addEventListener('pointerdown', e => { e.stopPropagation(); pad.setPointerCapture(e.pointerId); set(e); });
+    pad.addEventListener('pointermove', e => { if (pad.hasPointerCapture(e.pointerId)) set(e); });
+    const end = () => { this.touch.roll = 0; this.touch.pitch = 0; dot.style.left = dot.style.top = '50%'; };
+    pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
+  }
+
   onKey(e, down) {
     if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
     const k = e.code;
@@ -46,6 +67,7 @@ export class Input {
     this.axes.roll = kAxis(this.axes.roll, ['ArrowLeft', 'Numpad4'], ['ArrowRight', 'Numpad6'], 0.8);
     this.axes.yaw = kAxis(this.axes.yaw, ['KeyZ', 'Numpad0'], ['KeyX', 'NumpadDecimal'], 1);
     let pitch = this.axes.pitch, roll = this.axes.roll, yaw = this.axes.yaw;
+    if (this.touch) { pitch = clamp(pitch + this.touch.pitch * 0.9, -1, 1); roll = clamp(roll + this.touch.roll * 0.9, -1, 1); }
     let brakeL = 0, brakeR = 0;
     if (this.keys.has('KeyB')) brakeL = brakeR = 1;
     if (this.keys.has('Comma')) brakeL = 1;

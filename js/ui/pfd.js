@@ -92,7 +92,7 @@ export class PFD extends Display {
     if (sim.raFt < 2500) {
       const ra = sim.raFt;
       const rv = ra < 500 ? Math.round(ra / 2) * 2 : Math.round(ra / 10) * 10;
-      const belowMins = sim.minimumsAltFt != null && sim.altFt < sim.minimumsAltFt && !sim.onGround;
+      const belowMins = sim.minimumsAltFt != null && sim.altFt < sim.minimumsAltFt && !sim.onGround && sim.flightPhase === 'APPROACH';
       text(g, String(rv), cx, cy + 205, { size: 36, color: belowMins ? C.amber : C.white, weight: 'bold' });
     }
     // GPWS 表示

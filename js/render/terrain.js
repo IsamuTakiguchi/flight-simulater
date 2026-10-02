@@ -54,6 +54,12 @@ const frag = /* glsl */`
   void main() {
     #include <logdepthbuf_fragment>
     vec3 base = uHasMap > 0.5 ? texture2D(uMap, vUv).rgb : uFallback;
+    if (uHasMap < 0.5) {
+      // 写真が無い場合はノイズで地表の変化を表現
+      vec2 q = vWorld.xz + vec2(1.0e5);
+      float n = hash(floor(q / 260.0)) * 0.5 + hash(floor(q / 61.0)) * 0.3 + hash(floor(q / 13.0)) * 0.2;
+      base *= 0.78 + 0.44 * n;
+    }
     vec3 col = base * uSunTint * (0.04 + 0.96 * uDay);
     // 夜間: 市街地（低彩度・中明度の画素）に街明かりを散らす
     if (uNight > 0.01 && uHasMap > 0.5) {
@@ -76,7 +82,7 @@ const frag = /* glsl */`
     // 大気遠近（ケーシュミーダー則）
     float dist = length(vWorld - cameraPosition);
     float vis = uVis * (1.0 + uCamAlt / 2500.0);
-    float fog = 1.0 - exp(-3.2 * dist / vis);
+    float fog = 1.0 - exp(-2.5 * dist / vis);
     col = mix(col, uFogColor, clamp(fog, 0.0, 1.0));
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>
@@ -182,8 +188,10 @@ export class Terrain {
     try {
       const dz = demZoomFor(t.z);
       const f = 1 << (t.z - dz);
-      const demP = this.enabled ? this.loadDem(dz, Math.floor(t.x / f), Math.floor(t.y / f)) : Promise.resolve();
-      const imgP = this.enabled ? this.loadImage(t.z, t.x, t.y) : Promise.resolve(null);
+      // オフライン（または地形 OFF）時は簡易地形で生成
+      const online = this.enabled && this.netOk !== false;
+      const demP = online ? this.loadDem(dz, Math.floor(t.x / f), Math.floor(t.y / f)) : Promise.resolve();
+      const imgP = online ? this.loadImage(t.z, t.x, t.y) : Promise.resolve(null);
       const [, img] = await Promise.all([demP, imgP]);
       if (t.state === 'disposed') return;
       this.createMesh(t, img);
