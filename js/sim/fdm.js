@@ -230,8 +230,8 @@ export class FDM {
         ias: this.out.ias ?? 0, time: env.time ?? 0,
       };
       this.events.push({ type: 'TOUCHDOWN', ...this.touchdown });
-      if (vs > 5.5) {
-        this.crashed = `接地時の降下率が過大です (${Math.round(vs / FT * 60)} fpm)`;
+      if (-vs > 5.5) { // 約 1,080 fpm 超は降着装置が耐えられない
+        this.crashed = `接地時の降下率が過大です (${Math.round(-vs / FT * 60)} fpm)`;
         this.events.push({ type: 'CRASH', reason: this.crashed });
         return;
       }

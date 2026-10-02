@@ -2,6 +2,7 @@
 import { AIRPORTS } from '../data/airports.js';
 import { FT, wrap360 } from '../util/math.js';
 import { distance } from '../util/geo.js';
+import { LESSONS } from './tutorial.js';
 
 const PRESETS = {
   clear: { name: '快晴', windDir: 0, windKt: 5, gustKt: 0, visibilityM: 40000, cloudBaseFt: 6000, cloudCover: 0.15, cloudTopFt: 8000, turbulence: 0, oatC: 18, qnh: 1018 },
@@ -25,8 +26,8 @@ const TIMES = [['now', '現在時刻（日本時間）'], ['6', '早朝 6:00'], 
 function opt(v, t, sel) { return `<option value="${v}" ${sel ? 'selected' : ''}>${t}</option>`; }
 
 export class Menu {
-  constructor(root, onStart) {
-    this.root = root; this.onStart = onStart;
+  constructor(root, onStart, tutorial = null) {
+    this.root = root; this.onStart = onStart; this.tutorial = tutorial;
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem('b787sim.menu') || '{}'); } catch (e) { saved = {}; }
     this.s = Object.assign({
@@ -67,7 +68,17 @@ export class Menu {
     const fuel = s.fuelKg > 0 ? s.fuelKg : autoFuel;
     const tow = zfw + fuel;
     const p = PRESETS[s.preset] || PRESETS.custom;
+    const tut = this.tutorial;
+    const firstTime = tut && !LESSONS.some(l => tut.isDone(l.id));
     this.root.innerHTML = `
+      <section class="m-tut">
+        <div class="m-tut-head"><h2>🎓 チュートリアル</h2><span class="m-note">${firstTime ? 'はじめての方は「画面の見方」→「はじめての離陸」の順がおすすめです。' : '各レッスンは何度でも受けられます。'}</span></div>
+        <div class="m-tut-list">
+          ${LESSONS.map((l, i) => `<button class="m-lesson${tut && tut.isDone(l.id) ? ' done' : ''}${firstTime && i === 0 ? ' rec' : ''}" data-lesson="${l.id}">
+            <span class="ml-top"><span class="ml-no">${i + 1}</span><span class="ml-level">${l.level}・${l.time}</span>${tut && tut.isDone(l.id) ? '<span class="ml-done">✔ 完了</span>' : ''}</span>
+            <span class="ml-name">${l.name}</span><span class="ml-desc">${l.desc}</span></button>`).join('')}
+        </div>
+      </section>
       <div class="m-grid">
         <section class="m-sec">
           <h2>✈ 出発</h2>
@@ -145,6 +156,7 @@ export class Menu {
       const elx = $(id), out = elx.nextElementSibling;
       elx.addEventListener('input', () => { out.textContent = elx.value; });
     }
+    this.root.querySelectorAll('[data-lesson]').forEach(b => { b.onclick = () => { this.save(); this.tutorial && this.tutorial.start(b.dataset.lesson); }; });
     $('m-go').onclick = () => this.start(false);
     $('m-demo').onclick = () => this.start(true);
     $('m-help').onclick = () => document.getElementById('help-win').hidden = false;

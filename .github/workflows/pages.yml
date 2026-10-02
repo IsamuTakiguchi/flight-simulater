@@ -33,6 +33,8 @@ jobs:
           grep -q '"grade"' flare.log
       - name: 飛行テスト（羽田→関西 全行程）
         run: node tests/full-flight.mjs RJTT 34R RJBB 24L runway | tail -20
+      - name: チュートリアル検証（全レッスンを手順どおり完走できるか）
+        run: node tests/tutorial.mjs
 
   deploy:
     needs: test

@@ -40,6 +40,7 @@ export class Pedestal {
     const col = el('div', 'ped-col');
     // ---- スラストレバー ----
     const tq = el('div', 'thr-quad');
+    tq.dataset.tut = 'throttle';
     for (const i of [0, 1]) {
       const c = el('div', 'lever-col');
       const tr = el('div', 'lever-track');
@@ -73,6 +74,7 @@ export class Pedestal {
     // フラップ
     const fc = el('div', 'lever-col');
     const ft = el('div', 'lever-track flap-track');
+    ft.dataset.tut = 'flaps';
     const fUp = lever(ft, {
       get: () => 1 - s().sys.flapLever / 8,
       set: v => { s().setFlapLever(Math.round((1 - v) * 8)); },
@@ -86,10 +88,10 @@ export class Pedestal {
     col.appendChild(tq);
 
     const row = el('div', 'row');
-    const toga = el('button', 'ped-btn', 'TO/GA'); toga.title = 'TO/GA スイッチ (T)';
+    const toga = el('button', 'ped-btn', 'TO/GA'); toga.title = 'TO/GA スイッチ (T)'; toga.dataset.tut = 'toga';
     toga.onclick = () => s().af.pressTOGA(s());
     const atd = el('button', 'ped-btn', 'A/T DISC'); atd.onclick = () => { const a = s().af; if (a.at) { a.at = false; a.thr = ''; a.atDiscWarning = true; } else a.atDiscWarning = false; };
-    const revb = el('button', 'ped-btn', 'REV'); revb.title = 'リバース (R 長押し)';
+    const revb = el('button', 'ped-btn', 'REV'); revb.title = 'リバース (R 長押し)'; revb.dataset.tut = 'reverse';
     revb.onpointerdown = () => s().setReverse(1); revb.onpointerup = revb.onpointerleave = () => s().setReverse(0);
     row.append(toga, atd, revb);
     col.appendChild(row);
@@ -101,6 +103,7 @@ export class Pedestal {
     // ギア
     let b = boxp('LANDING GEAR');
     const gl = el('div', 'gear-lever');
+    gl.dataset.tut = 'gear';
     const gup = el('button', 'ped-btn', 'UP'), gdn = el('button', 'ped-btn', 'DN');
     gup.onclick = () => { s().sys.gearLever = 'UP'; }; gdn.onclick = () => { s().sys.gearLever = 'DN'; };
     gl.append(gup, gdn); b.appendChild(gl);
@@ -108,6 +111,7 @@ export class Pedestal {
     // オートブレーキ
     b = boxp('AUTOBRAKE');
     const ab = el('select', 'select');
+    ab.dataset.tut = 'autobrake';
     for (const a of AUTOBRAKE) ab.appendChild(Object.assign(document.createElement('option'), { value: a, textContent: a }));
     ab.onchange = () => { s().sys.autobrake = ab.value; ab.blur(); };
     b.appendChild(ab);
@@ -115,6 +119,7 @@ export class Pedestal {
     // パーキングブレーキ
     b = boxp('PARKING BRAKE');
     const pb = el('button', 'ped-btn', 'SET');
+    pb.dataset.tut = 'parking';
     pb.onclick = () => { const sy = s().sys; sy.parkingBrake = !sy.parkingBrake; };
     b.appendChild(pb);
     this.updaters.push(() => { const on = s().sys.parkingBrake; pb.classList.toggle('alert', on); pb.textContent = on ? 'SET (ON)' : 'RELEASED'; });

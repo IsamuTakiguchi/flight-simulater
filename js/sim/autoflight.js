@@ -474,6 +474,12 @@ export class AutoFlight {
     }
     const maxLever = this.ratingLever(sim, this.rating === 'TO' || this.rating === 'GA' || this.rating.startsWith('TO') ? this.rating : (this.rating || 'CLB'));
     this.maxLever = maxLever;
+    // 着陸: 手動着陸でも電波高度 25ft で IDLE（ボーイング A/T の着陸リタード）、接地後は自動解除
+    if (this.at && !sim.onGround && ra < 25 && sim.fdm.gearPos > 0.99 && sim.fdm.flapPos >= 6.5 && sim.vsFpm < 0
+      && this.thr !== 'IDLE' && this.vert.active !== 'TO/GA') { this.thr = 'IDLE'; this.thrOverride = 0; }
+    if (this.at && sim.onGround && sim.landedRoll && (this.thr === 'IDLE' || eng.some(e => e.revLever > 0.05))) {
+      this.at = false; this.thr = '';
+    }
     if (!this.at || !this.atArm) { this.thr = this.at ? this.thr : ''; return; }
 
     // 離陸時 80kt で HOLD

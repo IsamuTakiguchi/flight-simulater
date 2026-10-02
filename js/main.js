@@ -15,6 +15,7 @@ import { Overhead } from './ui/overhead.js';
 import { CDU } from './ui/cdu.js';
 import { Checklist, HELP_HTML } from './ui/checklist.js';
 import { Menu } from './ui/menu.js';
+import { Tutorial } from './ui/tutorial.js';
 import { Input } from './ui/input.js';
 import { Sound } from './audio/sound.js';
 
@@ -108,7 +109,13 @@ function toggleDemo(on) {
 }
 
 // ---------- メニュー ----------
-const menu = new Menu($('menu-body'), (sc, demo) => startFlight(sc, demo));
+const tutorial = new Tutorial($('tutorial'), getSim, {
+  startFlight: sc => startFlight(Object.assign(menu.scenario(), sc, { tutorial: true }), false),
+  pause: on => togglePause(on),
+  openMenu: () => openMenu(),
+  sound: name => sound.play(name),
+});
+const menu = new Menu($('menu-body'), (sc, demo) => { tutorial.stop(); startFlight(sc, demo); }, tutorial);
 function openMenu() {
   togglePause(true);
   $('menu').hidden = false;
@@ -156,8 +163,8 @@ async function startFlight(sc, demo) {
   lastT = performance.now();
   toast(`${sim.fmc.origin.nameJa} RWY ${sim.fmc.depRwy.id} → ${sim.fmc.dest.nameJa} RWY ${sim.fmc.arrRwy.id}`);
   if (sc.start === 'cold') { toast('コールド＆ダーク: チェックリスト [K] の「エンジン始動」から始めてください', 'cap'); toggleWin('chk-win', true); }
-  if (sc.start === 'runway' && !demo) toast('パーキングブレーキ解除 [P] → 推力を少し上げて [T] で TO/GA 離陸推力', 'cap');
-  if (sc.start === 'final5') toast('手動着陸: ILS の菱形（LOC / G/S）を中央に保ち、50ft でフレア', 'cap');
+  if (!sc.tutorial && sc.start === 'runway' && !demo) toast('パーキングブレーキ解除 [P] → 推力を少し上げて [T] で TO/GA 離陸推力', 'cap');
+  if (!sc.tutorial && sc.start === 'final5') toast('手動着陸: ILS の菱形（LOC / G/S）を中央に保ち、50ft でフレア', 'cap');
 }
 
 // ---------- キー操作 ----------
@@ -216,7 +223,11 @@ $('btn-mc').onclick = () => sim.sys.resetMaster(sim);
 {
   const v = $('view');
   let drag = null;
-  v.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; v.setPointerCapture(e.pointerId); sound.init(); });
+  v.addEventListener('pointerdown', e => {
+    sound.init();
+    if (e.target.closest('#tutorial, #yoke, button, select, input')) return; // パネル上の操作は視点ドラッグにしない
+    drag = { x: e.clientX, y: e.clientY }; v.setPointerCapture(e.pointerId);
+  });
   v.addEventListener('pointermove', e => {
     if (!drag || !world) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
@@ -230,8 +241,9 @@ $('btn-mc').onclick = () => sim.sys.resetMaster(sim);
     }
   });
   v.addEventListener('pointerup', () => { drag = null; });
-  v.addEventListener('dblclick', () => { if (world) { world.head.yaw = 0; world.head.pitch = -6 * DEG; world.head.fov = 58; world.chase.yaw = 0; world.chase.pitch = 10 * DEG; } });
+  v.addEventListener('dblclick', e => { if (e.target.closest('#tutorial')) return; if (world) { world.head.yaw = 0; world.head.pitch = -6 * DEG; world.head.fov = 58; world.chase.yaw = 0; world.chase.pitch = 10 * DEG; } });
   v.addEventListener('wheel', e => {
+    if (e.target.closest('#tutorial')) return;
     e.preventDefault();
     if (!world) return;
     if (world.view === 'cockpit') world.head.fov = clamp(world.head.fov * (e.deltaY > 0 ? 1.08 : 0.92), 20, 90);
@@ -291,7 +303,7 @@ function showCrash(reason) {
       <div class="m-actions"><button class="btn" id="cr-menu">メニューへ</button><button class="btn primary" id="cr-retry">やり直す</button></div>
     </div>`;
   $('report').hidden = false;
-  $('cr-retry').onclick = () => startFlight(scenario, false);
+  $('cr-retry').onclick = () => { if (tutorial.active) tutorial.start(tutorial.lesson.id); else startFlight(scenario, false); };
   $('cr-menu').onclick = () => { $('report').hidden = true; openMenu(); };
 }
 
@@ -319,6 +331,7 @@ function loop(t) {
   // 計器（約 30Hz）
   if (frame % 2 === 0) { pfd.draw(sim); nd.draw(sim, t / 1000); eicas.draw(sim); }
   if (frame % 6 === 0) {
+    tutorial.update(t / 1000);
     mcp.update(sim); pedestal.update(); overhead.update(); cdu.update(); checklist.update();
     $('btn-mw').classList.toggle('lit', sim.sys.masterWarning);
     $('btn-mc').classList.toggle('lit', sim.sys.masterCaution);

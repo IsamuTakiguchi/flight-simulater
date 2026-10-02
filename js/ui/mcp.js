@@ -14,6 +14,7 @@ export class MCP {
 
   btn(parent, id, label, fn, wide = false) {
     const b = el('button', 'mcp-btn' + (wide ? ' wide' : ''), label);
+    b.dataset.tut = 'mcp-' + id;
     b.title = label;
     b.addEventListener('click', () => { this.click(); fn(this.getSim()); });
     parent.appendChild(b); this.buttons[id] = b; return b;
@@ -39,6 +40,7 @@ export class MCP {
     wrap.append(minus, w, plus);
     parent.appendChild(wrap);
     this.windows[id] = w;
+    wrap.dataset.tut = 'mcp-win-' + id;
     return w;
   }
 
