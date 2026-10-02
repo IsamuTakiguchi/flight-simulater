@@ -458,10 +458,12 @@ export class Simulation {
       if (e.revLever > 0 && delta > 0) { e.revLever = clamp(e.revLever - delta, 0, 1); continue; }
       e.lever = clamp(e.lever + delta, 0, 1);
     }
-    if (this.af.at && (this.af.thr === 'HOLD' || this.af.thr === '')) return;
+    if (this.af.at && this.af.thr !== 'HOLD') this.af.thrOverride = 1.5;
   }
   setThrottle(v, which = null) {
     for (const [i, e] of this.engines.entries()) if (which == null || which === i) { e.lever = clamp(v, 0, 1); if (v > 0) e.revLever = 0; }
+    if (this.af.at && this.af.thr !== 'HOLD' && v > 0) this.af.thrOverride = 1.5;
+    if (v === 0 && this.af.at && !this.onGround && this.af.thr !== 'IDLE') { /* 手動アイドル: A/T は維持 */ }
   }
   setReverse(v) {
     for (const e of this.engines) { if (e.lever < 0.05 || v === 0) { e.revLever = clamp(v, 0, 1); if (v > 0) e.lever = 0; } }

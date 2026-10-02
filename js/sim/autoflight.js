@@ -492,6 +492,8 @@ export class AutoFlight {
     }
     if (this.vert.active === 'FLCH SPD' && this.thr === 'SPD') this.thr = 'THR';
 
+    // パイロットによるスラストレバーのオーバーライド（手を離すと A/T が復帰）
+    if (this.thrOverride > 0) { this.thrOverride -= dt; return; }
     switch (this.thr) {
       case 'THR REF':
         lever = approach(lever, maxLever, (sim.onGround ? 0.25 : 0.1) * dt);

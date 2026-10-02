@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>B787 Flight Simulator Japan</title>
+  <meta name="description" content="ボーイング787-9で日本の実在空港を飛ぶブラウザ・フライトシミュレーター">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2309131f'/%3E%3Cpath d='M32 6l4 18 20 10v5l-20-5-1 14 7 5v4l-10-3-10 3v-4l7-5-1-14-20 5v-5l20-10z' fill='%2350d0ff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+  <div id="app">
+    <!-- 3D 外部視界 -->
+    <div id="view">
+      <canvas id="gl"></canvas>
+      <canvas id="hud"></canvas>
+      <div id="cockpit-frame"></div>
+      <div id="toast"></div>
+      <div id="status-bar">
+        <span id="sb-view">COCKPIT</span>
+        <span id="sb-rate"></span>
+        <span id="sb-tiles"></span>
+        <span id="sb-help">[F1] 操作ヘルプ</span>
+      </div>
+      <div id="pause-badge" hidden>一時停止中（Space で再開）</div>
+    </div>
+
+    <!-- グレアシールド（MCP / EFIS） -->
+    <div id="glareshield">
+      <div id="efis-l" class="efis"></div>
+      <div id="mcp"></div>
+      <div id="master-lights">
+        <button id="btn-mw" class="master warning" title="MASTER WARNING（クリックでリセット）">MASTER<br>WARNING</button>
+        <button id="btn-mc" class="master caution" title="MASTER CAUTION（クリックでリセット）">MASTER<br>CAUTION</button>
+      </div>
+    </div>
+
+    <!-- 計器パネル -->
+    <div id="panel">
+      <div class="du-wrap"><canvas id="pfd" class="du"></canvas></div>
+      <div class="du-wrap"><canvas id="nd" class="du"></canvas></div>
+      <div class="du-wrap"><canvas id="eicas" class="du"></canvas></div>
+      <div id="pedestal"></div>
+    </div>
+  </div>
+
+  <!-- フローティングウィンドウ -->
+  <div id="cdu-win" class="float-win" hidden>
+    <div class="win-title"><span>CDU — FMC</span><button class="win-close" data-close="cdu-win">×</button></div>
+    <div id="cdu"></div>
+  </div>
+  <div id="ovhd-win" class="float-win" hidden>
+    <div class="win-title"><span>OVERHEAD PANEL</span><button class="win-close" data-close="ovhd-win">×</button></div>
+    <div id="overhead"></div>
+  </div>
+  <div id="chk-win" class="float-win" hidden>
+    <div class="win-title"><span>CHECKLIST / 手順</span><button class="win-close" data-close="chk-win">×</button></div>
+    <div id="checklist"></div>
+  </div>
+  <div id="help-win" class="float-win" hidden>
+    <div class="win-title"><span>操作ヘルプ</span><button class="win-close" data-close="help-win">×</button></div>
+    <div id="help"></div>
+  </div>
+
+  <!-- メニュー -->
+  <div id="menu" class="modal">
+    <div class="menu-card">
+      <header class="menu-head">
+        <div class="logo">
+          <svg viewBox="0 0 64 64" width="44" height="44"><path d="M32 6l4 18 20 10v5l-20-5-1 14 7 5v4l-10-3-10 3v-4l7-5-1-14-20 5v-5l20-10z" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <h1>B787-9 FLIGHT SIMULATOR <span>JAPAN</span></h1>
+          <p>実在する日本の空港・地形・航空写真で、ボーイング787のフライトデッキ操作を体験</p>
+        </div>
+      </header>
+      <div id="menu-body"></div>
+    </div>
+  </div>
+  <div id="report" class="modal" hidden><div class="menu-card small" id="report-body"></div></div>
+  <div id="loading" class="modal" hidden><div class="loader"><div class="spin"></div><div id="loading-text">読み込み中…</div></div></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

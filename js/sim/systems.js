@@ -48,7 +48,7 @@ export class Systems {
   }
 
   acPower(sim) {
-    const engGen = sim.engines.some(e => e.running && e.n2 > 50);
+    const engGen = sim.engines.some((e, i) => e.running && e.n2 > 50 && (i ? this.genR : this.genL));
     return (this.extPwr && this.extPwrAvail) || (this.apuRunning) || engGen;
   }
 
