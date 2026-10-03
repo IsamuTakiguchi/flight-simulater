@@ -257,3 +257,79 @@ button { font-family: inherit; }
 .ml-name { font-size: 14px; font-weight: 600; }
 .ml-desc { font-size: 11px; line-height: 1.5; color: #a9b4c2; }
 @media (max-width: 640px) { #tutorial { left: 8px; right: 8px; top: 8px; width: auto; max-height: 45%; } }
+
+/* ===== スマートフォン（body.mobile）: 外部視界を全画面にし、操作はタッチボタンで重ねる ===== */
+.touch-ui { display: none; }
+body.mobile #app { grid-template-rows: 1fr; }
+body.mobile #glareshield, body.mobile #panel { display: none; }
+body.mobile .touch-ui { display: block; position: absolute; inset: 0; pointer-events: none; z-index: 9; }
+body.mobile .touch-ui > * { pointer-events: auto; }
+.tb-top { position: absolute; top: env(safe-area-inset-top, 0px); left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px);
+  display: flex; justify-content: space-between; gap: 6px; padding: 6px 8px; background: linear-gradient(rgba(5,8,13,.75), rgba(5,8,13,0)); }
+.tb-group { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.tb-group.col { flex-direction: column; align-items: stretch; }
+.tb-btn { min-width: 44px; height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: rgba(16,22,30,.82);
+  color: #e9eef5; font: 600 12px var(--font); white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.tb-btn.on { background: rgba(35,90,55,.92); border-color: #46d27a; color: #b8ffd0; }
+.tb-btn.down, .tb-btn:active { background: rgba(80,208,255,.35); }
+.tb-more { position: absolute; top: calc(52px + env(safe-area-inset-top, 0px)); left: 8px; display: flex; flex-wrap: wrap; gap: 6px; max-width: 70vw;
+  background: rgba(10,14,20,.94); border: 1px solid var(--edge); border-radius: 10px; padding: 8px; }
+.tb-more[hidden] { display: none; }
+.tb-bottom { position: absolute; bottom: env(safe-area-inset-bottom, 0px); left: 170px; right: 96px; display: flex; gap: 6px; justify-content: center;
+  align-items: center; flex-wrap: wrap; padding: 6px; }
+.tb-flaps { display: flex; gap: 4px; align-items: center; background: rgba(16,22,30,.82); border-radius: 10px; padding: 2px; }
+.tb-flap-val { font: 600 12px var(--mono); color: var(--cyan); min-width: 74px; text-align: center; }
+.tb-right { position: absolute; right: calc(8px + env(safe-area-inset-right, 0px)); top: calc(54px + env(safe-area-inset-top, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  width: 76px; display: flex; flex-direction: column; gap: 6px; }
+.tb-thr { position: relative; flex: 1; min-height: 110px; border-radius: 14px; background: rgba(9,12,16,.78); border: 1px solid rgba(255,255,255,.2); touch-action: none; }
+.tb-thr-handle { position: absolute; left: 6px; right: 6px; height: 28px; border-radius: 6px; background: linear-gradient(#f2f2f2, #a9adb3); box-shadow: 0 2px 6px rgba(0,0,0,.6); }
+.tb-thr-text { position: absolute; top: 6px; left: 0; right: 0; text-align: center; font: 600 11px var(--mono); color: var(--cyan); pointer-events: none; }
+.tb-rotate { display: none; }
+body.mobile.portrait .tb-rotate { display: flex; gap: 8px; align-items: center; position: absolute; left: 8px; right: 92px; top: 38%; z-index: 2;
+  background: rgba(10,16,24,.92); border: 1px solid #2c6e8f; border-radius: 10px; padding: 8px 10px; font-size: 12px; }
+body.mobile.portrait .tb-rotate[hidden] { display: none; }
+body.mobile #yoke { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: calc(10px + env(safe-area-inset-left, 0px)); width: 140px; height: 140px; }
+body.mobile #status-bar { bottom: auto; top: calc(48px + env(safe-area-inset-top, 0px)); left: 10px; font-size: 9px; gap: 8px; z-index: 8; }
+body.mobile #sb-help, body.mobile #sb-tiles, body.mobile #sb-view { display: none; }
+body.mobile #toast { top: calc(60px + env(safe-area-inset-top, 0px)); }
+body.mobile .toast-item { font-size: 12px; padding: 5px 10px; }
+body.mobile #cockpit-frame.on { background: none; }
+body.mobile #cockpit-frame.on::after { display: none; }
+/* 計器ドロワー（PFD・ND） */
+body.mobile.show-inst #panel { display: flex; position: absolute; z-index: 8; gap: 6px; padding: 0; background: transparent; min-height: 0;
+  left: 160px; right: 92px; bottom: calc(56px + env(safe-area-inset-bottom, 0px)); height: min(46vh, calc((100vw - 270px) / 2)); justify-content: center; }
+body.mobile.show-inst #panel .du-wrap { height: 100%; width: auto; aspect-ratio: 1 / 1; border-width: 3px; }
+body.mobile.show-inst #panel .du-wrap:nth-child(3), body.mobile.show-inst #pedestal { display: none; }
+/* MCP（自動操縦パネル）を上部に表示 */
+body.mobile.show-mcp #glareshield { display: flex; position: absolute; z-index: 12; top: calc(50px + env(safe-area-inset-top, 0px)); left: 0; right: 0; padding: 4px; background: rgba(15,17,20,.94); }
+body.mobile.show-mcp #efis-l, body.mobile.show-mcp #master-lights { display: none; }
+body.mobile.show-mcp #mcp { flex: 1; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+body.mobile #mcp .mcp-btn { min-width: 48px; height: 34px; }
+body.mobile #mcp .knob { width: 32px; height: 30px; font-size: 14px; }
+/* 縦画面: 上に外部視界、下に PFD と ND を並べる */
+body.mobile.portrait #app { grid-template-rows: 1fr auto; }
+body.mobile.portrait.show-inst #panel { display: flex; position: static; height: 50vw; padding: 4px; gap: 4px; background: #0c0e11; justify-content: center; }
+body.mobile.portrait .tb-bottom { left: 8px; right: 92px; bottom: 150px; justify-content: flex-start; }
+body.mobile.portrait #yoke { width: 120px; height: 120px; }
+body.mobile.portrait .tb-top { justify-content: flex-start; }
+body.mobile.portrait .tb-top .tb-btn { min-width: 40px; padding: 0 8px; }
+body.mobile.portrait .tb-right { top: calc(50px + env(safe-area-inset-top, 0px)); }
+body.mobile.portrait .tb-right .tb-btn { height: 36px; }
+/* フローティングウィンドウ・チュートリアル */
+body.mobile .float-win { max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); left: 8px !important; right: auto; top: 8px !important; transform: none !important; }
+body.mobile .cdu-screen { width: min(360px, 80vw); }
+body.mobile #overhead { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); max-height: 80dvh; }
+body.mobile #tutorial { top: calc(52px + env(safe-area-inset-top, 0px)); left: 8px; width: min(320px, 44vw); max-height: calc(100% - 230px); padding: 10px; gap: 6px; }
+body.mobile.portrait #tutorial { width: auto; right: 92px; max-height: 42%; }
+body.mobile .tut-text { font-size: 12px; line-height: 1.6; }
+body.mobile .tut-title { font-size: 14px; }
+body.mobile .tut-touch { display: block; }
+.tut-touch { display: none; font-size: 12px; color: #ffe39a; background: rgba(255,176,0,.1); border-radius: 6px; padding: 5px 8px; }
+/* メニュー（スマホ） */
+body.mobile .modal { padding: 8px; align-items: flex-start; }
+body.mobile .menu-head { padding: 10px 14px; }
+body.mobile .menu-head h1 { font-size: 15px; }
+body.mobile .menu-head p { font-size: 11px; }
+body.mobile #menu-body { padding: 10px 12px 14px; }
+body.mobile .m-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+body.mobile .m-tut-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }

@@ -16,6 +16,7 @@ import { CDU } from './ui/cdu.js';
 import { Checklist, HELP_HTML } from './ui/checklist.js';
 import { Menu } from './ui/menu.js';
 import { Tutorial } from './ui/tutorial.js';
+import { TouchUI } from './ui/touch.js';
 import { Input } from './ui/input.js';
 import { Sound } from './audio/sound.js';
 
@@ -151,7 +152,7 @@ async function startFlight(sc, demo) {
   }
   sim.setup(sc);
   sim.timeOfDay = sc.timeOfDay;
-  hud.enabled = sc.hud;
+  hud.enabled = sc.hud || document.body.classList.contains('mobile');
   cdu.mod = null; cdu.go(sc.start === 'cold' ? 'IDENT' : 'TAKEOFF'); cdu.render();
   captain = null;
   if (demo) toggleDemo(true);
@@ -251,7 +252,33 @@ $('btn-mc').onclick = () => sim.sys.resetMaster(sim);
   }, { passive: false });
 }
 new ResizeObserver(() => world && world.resize()).observe($('view'));
-if (window.matchMedia && matchMedia('(pointer: coarse)').matches) input.attachTouchYoke($('view'));
+// ---------- スマートフォン表示 ----------
+const forceMobile = new URLSearchParams(location.search).has('mobile');
+const coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+let touchUI = null;
+function applyLayout() {
+  const w = innerWidth, h = innerHeight;
+  const mobile = forceMobile || (coarse && Math.min(w, h) <= 600) || w < 700;
+  const body = document.body;
+  const was = body.classList.contains('mobile');
+  body.classList.toggle('mobile', mobile);
+  body.classList.toggle('portrait', mobile && h > w);
+  if (mobile && !touchUI) {
+    if (!input.touch) input.attachTouchYoke($('view'));
+    touchUI = new TouchUI($('view'), getSim, (code, mods = {}) => input.handlers.press && input.handlers.press(code, { shiftKey: false, ctrlKey: false, metaKey: false, ...mods }), input, {
+      toggleInst: () => { body.classList.toggle('show-inst'); setTimeout(() => world && world.resize(), 30); },
+      toggleMcp: () => body.classList.toggle('show-mcp'),
+      toggleMore: () => { touchUI.more.hidden = !touchUI.more.hidden; },
+    });
+  }
+  if (touchUI) touchUI.setPortrait(mobile && h > w);
+  if (mobile && !was) { hud.enabled = true; body.classList.toggle('show-inst', h > w); }
+  setTimeout(() => world && world.resize(), 50);
+}
+applyLayout();
+window.addEventListener('resize', applyLayout);
+window.addEventListener('orientationchange', () => setTimeout(applyLayout, 200));
+if (!touchUI && coarse) input.attachTouchYoke($('view'));
 
 // ---------- イベント処理 ----------
 function handleEvents() {
@@ -332,6 +359,7 @@ function loop(t) {
   if (frame % 2 === 0) { pfd.draw(sim); nd.draw(sim, t / 1000); eicas.draw(sim); }
   if (frame % 6 === 0) {
     tutorial.update(t / 1000);
+    if (touchUI) touchUI.update();
     mcp.update(sim); pedestal.update(); overhead.update(); cdu.update(); checklist.update();
     $('btn-mw').classList.toggle('lit', sim.sys.masterWarning);
     $('btn-mc').classList.toggle('lit', sim.sys.masterCaution);

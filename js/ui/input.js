@@ -67,9 +67,14 @@ export class Input {
     this.axes.roll = kAxis(this.axes.roll, ['ArrowLeft', 'Numpad4'], ['ArrowRight', 'Numpad6'], 0.8);
     this.axes.yaw = kAxis(this.axes.yaw, ['KeyZ', 'Numpad0'], ['KeyX', 'NumpadDecimal'], 1);
     let pitch = this.axes.pitch, roll = this.axes.roll, yaw = this.axes.yaw;
-    if (this.touch) { pitch = clamp(pitch + this.touch.pitch * 0.9, -1, 1); roll = clamp(roll + this.touch.roll * 0.9, -1, 1); }
+    if (this.touch) {
+      pitch = clamp(pitch + this.touch.pitch * 0.9, -1, 1);
+      roll = clamp(roll + this.touch.roll * 0.9, -1, 1);
+      // 地上ではタッチ操縦桿の左右をラダー（前輪操向）にも使う
+      if (sim.onGround) yaw = clamp(yaw + this.touch.roll * 0.8, -1, 1);
+    }
     let brakeL = 0, brakeR = 0;
-    if (this.keys.has('KeyB')) brakeL = brakeR = 1;
+    if (this.keys.has('KeyB') || this.touchBrake) brakeL = brakeR = 1;
     if (this.keys.has('Comma')) brakeL = 1;
     if (this.keys.has('Period')) brakeR = 1;
     // スロットル

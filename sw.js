@@ -1,5 +1,5 @@
 // Service Worker: アプリ本体をオフライン対応し、国土地理院タイルを端末にキャッシュする
-const VERSION = 'v1.3.0';
+const VERSION = 'v1.4.0';
 const APP_CACHE = 'b787-app-' + VERSION;
 const TILE_CACHE = 'b787-tiles-v1';
 const TILE_LIMIT = 4000;   // 端末に保持する地形・写真タイルの上限枚数
@@ -13,7 +13,7 @@ const APP_SHELL = [
   './js/sim/engines.js', './js/sim/fbw.js', './js/sim/fdm.js', './js/sim/fmc.js', './js/sim/gpws.js', './js/sim/navigation.js',
   './js/sim/simulation.js', './js/sim/systems.js', './js/ui/cdu.js', './js/ui/checklist.js', './js/ui/draw.js', './js/ui/eicas.js',
   './js/ui/hud.js', './js/ui/input.js', './js/ui/mcp.js', './js/ui/menu.js', './js/ui/nd.js', './js/ui/overhead.js',
-  './js/ui/pedestal.js', './js/ui/pfd.js', './js/ui/tutorial.js', './js/util/geo.js', './js/util/math.js', './vendor/three.module.min.js',
+  './js/ui/pedestal.js', './js/ui/pfd.js', './js/ui/tutorial.js', './js/ui/touch.js', './js/util/geo.js', './js/util/math.js', './vendor/three.module.min.js',
 ];
 
 self.addEventListener('install', e => {
